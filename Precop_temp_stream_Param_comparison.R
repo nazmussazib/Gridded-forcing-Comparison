@@ -260,7 +260,7 @@ mon_srflow=matrix(SNVAR_ALL,12*24,1)
 srflow_src=c("Observed","Daymet","PRISM","Maurer")
 srf_src=matrix((rep(srflow_src,each=12)))
 streamflow_src=matrix((rep(srf_src,6)))
-wats=c("A1","A2","B1","B21","C1","C21")
+wats=c("A1","A2","B1","B21","C1","C22")
 wats1=matrix((rep(watsed,each=48)))
 
 
@@ -275,15 +275,51 @@ data <- data.frame(
   place =wats1
 )
 
-ggplot(data, aes(time,values,group=scenario,color=scenario)) + geom_line() + facet_wrap(~place,scales = "free") +
-  geom_line(data = data, aes(time,values))+geom_point()+theme_bw()+
-  #theme(legend.position="none")+
-  scale_fill_manual(name = "Scenario", values = c("white", "grey"))+
-  theme(strip.text.x = element_text(size=14, face="bold"),
-        axis.text.x = element_text(colour="grey20",size=12,angle=90,hjust=.5,vjust=.5,face="plain"),
-        axis.text.y = element_text(colour="grey20",size=12,angle=0,hjust=1,vjust=0,face="plain"),  
-        axis.title.x = element_text(colour="grey20",size=12,angle=0,hjust=.5,vjust=0,face="bold"),
-        axis.title.y = element_text(colour="grey20",size=12,angle=90,hjust=.5,vjust=.5,face="bold"))+
+
+##calcualte NSE and write in the plot
+eq1=matrix('str',1,1)
+eq2=matrix('str',1,1)
+eq3=matrix('str',1,1)
+obs_ord=c(1,5,9,13,17,21)
+for ( i in 1:6){
+  obs=matrix(SNVAR_ALL[,obs_ord[i]])
+  sim1=matrix(SNVAR_ALL[,obs_ord[i]+1])
+  sim2=matrix(SNVAR_ALL[,obs_ord[i]+2])
+  sim3=matrix(SNVAR_ALL[,obs_ord[i]+3])
+  d1=NSE(obs,sim1)
+  d2=NSE(obs,sim2)
+  d3=NSE(obs,sim3)
+  eq <- list(t1=format(d1,digits=2),t2=format(d2,digits=2),t3=format(d3,digits=2))
+  txt1=c(paste("Daymet=",as.character(as.expression(eq$t1)),sep="")) 
+  txt2=c(paste("PRISM=",as.character(as.expression(eq$t2)),sep="")) 
+  txt3=c(paste("Maurer=",as.character(as.expression(eq$t3)),sep="")) 
+  
+  
+  eq1=rbind(eq1,txt1)
+  eq2=rbind(eq2,txt2)
+  eq3=rbind(eq3,txt3)
+  }
+eq1=eq1[-1,]
+eq1=data.frame(eq=eq1,place=wats)
+eq2=eq2[-1,]
+eq2=data.frame(eq=eq2,place=wats)
+eq3=eq3[-1,]
+eq3=data.frame(eq=eq3,place=wats)
+
+x1=c(5,5,5,5,5,5)
+y1=c(3,300,2,7,60,40)
+y2=c(2,250,1.7,5,50,30)
+y3=c(1,220,1.5,4,40,20)
+labeldata1=data.frame(cbind(eq1,x,y1))
+labeldata2=data.frame(cbind(eq2,x,y2))
+labeldata3=data.frame(cbind(eq3,x,y3))
+
+ggplot(data, aes(time,values)) + 
+geom_line(data = data, aes(time,values,group=scenario,color=scenario))+geom_point()+
+geom_text(data=labeldata1, aes(x=x, y=y1, label=eq,family="Times", fontface="bold"), parse=FALSE)+ 
+geom_text(data=labeldata2, aes(x=x, y=y2, label=eq,family="Times", fontface="bold"), parse=FALSE)+  
+  
+facet_wrap(~place,scales = "free") +
   
   
   
