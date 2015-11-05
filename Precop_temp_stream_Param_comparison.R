@@ -10,11 +10,11 @@ library(ggplot2)
 rainfall=function(file){
   rain=read.table(file,skip=3)
   dates_all=seq(as.Date("1980/1/1"), as.Date("2012/12/31"), "day")
-  dates_bl=seq(as.Date("1980/1/1"), as.Date("2012/12/31"), "day")
+  dates_bl=seq(as.Date("1980/1/1"), as.Date("2010/12/31"), "day")
   dates_match=match(dates_bl,dates_all)
   rainfall=rain[dates_match,(1:(ncol(rain)-2))]
-  rain_mon=matrix(colMeans(data.frame(monthlyfunction(rainfall, FUN=sum, na.rm=TRUE,dates=dates_bl))/33))
-  rain_ann=matrix(rowMeans(data.frame(annualfunction(rainfall, FUN=sum, na.rm=TRUE,dates=dates_bl))/33))
+  rain_mon=matrix(colMeans(data.frame(monthlyfunction(rainfall, FUN=sum, na.rm=TRUE,dates=dates_bl))/31))
+  rain_ann=matrix(rowMeans(data.frame(annualfunction(rainfall, FUN=sum, na.rm=TRUE,dates=dates_bl))/31))
   rain_all=rbind(rain_ann,rain_mon)
 }
 
@@ -32,6 +32,197 @@ for ( i in 1:length(watsed)){
 }
 print (i)
 }
+
+
+## differnece in annual means, stdv and annua coorealtuon
+
+
+rainfall_stat_ann=function(file){
+  rain=read.table(file,skip=3)
+  dates_all=seq(as.Date("1980/1/1"), as.Date("2012/12/31"), "day")
+  dates_bl=seq(as.Date("1980/1/1"), as.Date("2010/12/31"), "day")
+  dates_match=match(dates_bl,dates_all)
+  rainfall=matrix(rowMeans(rain[dates_match,(1:(ncol(rain)-2))]))
+  rain_ann_mean=matrix((daily2annual(rainfall, FUN=sum, na.rm=TRUE,dates=dates_bl)))
+  rain_ann_std=matrix((daily2annual(rainfall, FUN=sd, na.rm=TRUE,dates=dates_bl))) 
+  rain_ann_max=matrix((daily2annual(rainfall, FUN=max, na.rm=TRUE,dates=dates_bl))) 
+  rain_all=rbind(rain_ann_mean,rain_ann_std,rain_ann_max)
+}
+
+
+
+
+rainfall_ann_stat=matrix(NA,nrow=93,ncol=1)
+watsed=c("A1","A2","B1","B21","C1","C22")
+rainfall_source=c("Daymet_RUN","PRISM_RUN","Maurer_RUN")
+for ( i in 1:length(watsed)){
+  for ( j in 1:length(rainfall_source)) {
+    
+    setwd(paste("E:\\USU_Research_work\\Other_Work\\RAINFALL_COMPARISON\\",watsed[i],"_watershed\\",rainfall_source[j],sep=""))
+    rainfile=list.files(path =paste("E:\\USU_Research_work\\Other_Work\\RAINFALL_COMPARISON\\",watsed[i],"_watershed\\",rainfall_source[j],sep=""),pattern ="rain.dat")
+    mr=sapply(rainfile,rainfall_stat_ann)
+    rainfall_ann_stat=cbind(rainfall_ann_stat,mr)
+    
+  }
+  print (i)
+}
+
+rainfall_ann_stat=rainfall_ann_stat[,-1]
+daymet_stat_prcp=rainfall_ann_stat[,seq(1,18,3)]
+prism_stat_prcp=rainfall_ann_stat[,seq(2,18,3)]
+Maurer_stat_prcp=rainfall_ann_stat[,seq(3,18,3)]
+diff_D_M=(1-daymet_stat_prcp/Maurer_stat_prcp)*100
+diff_P_M=(1-prism_stat_prcp/Maurer_stat_prcp)*100
+
+
+diff_D_M1=matrix(diff_D_M,93*6,1)
+diff_P_M1=matrix(diff_P_M,93*6,1)
+diff_val=rbind(diff_D_M1,diff_P_M1)
+
+diff_src=c("Daymet","PRISM")
+dif_src=matrix((rep(diff_src,each=558)))
+
+wats=c("A1","A2","B1","B21","C1","C21")
+wats1=matrix((rep(watsed,each=93)))
+wats2=matrix((rep(wats1,2)))
+
+var=c("sum","std","max")
+var1=matrix((rep(var,each=31)))
+var2=matrix((rep(var1,12)))
+
+
+x <- data.frame(
+  values = diff_val,
+  scenario=  dif_src,
+  time = var2,
+  place = wats2
+)
+
+# compare different sample populations across various temperatures
+ggplot(x, aes(x = place, y = values, fill = scenario)) +
+  geom_boxplot(outlier.shape = NA) +geom_hline(yintercept = 0.0,colour="black",size=1)+ #stat_summary(aes(group=scenario), fun.y=mean, geom="line")+
+  facet_wrap(~ time,scales = "free")+theme_bw()+
+  #theme(legend.position="none")+
+  scale_fill_manual(name = "Emission Scenario", values = c("slateblue", "red"))+
+  theme(strip.text.x = element_text(size=14, face="bold"),
+        axis.text.x = element_text(colour="grey20",size=12,angle=90,hjust=.5,vjust=.5,face="plain"),
+        axis.text.y = element_text(colour="grey20",size=12,angle=0,hjust=1,vjust=0,face="plain"),  
+        axis.title.x = element_text(colour="grey20",size=16,angle=0,hjust=.5,vjust=0,face="bold"),
+        axis.title.y = element_text(colour="grey20",size=16,angle=90,hjust=.5,vjust=.5,face="bold"))
+
+##########monthly change #################
+
+
+rainfall_stat_mon=function(file){
+  rain=read.table(file,skip=3)
+  dates_all=seq(as.Date("1980/1/1"), as.Date("2012/12/31"), "day")
+  dates_bl=seq(as.Date("1995/1/1"), as.Date("2005/12/31"), "day")
+  dates_match=match(dates_bl,dates_all)
+  rainfall=rowMeans(rain[dates_match,(1:(ncol(rain)-2))])
+  z <- vector2zoo(rainfall, as.Date(dates_bl))
+  dsea=c("DJF","MAM","JJA","SON")
+  
+  rain_mon_mean=matrix(NA,nrow=11,ncol=4)
+  
+  for ( i in 1:4){
+  rain_mon_mean[,i]=dm2seasonal(z,season=dsea[i],FUN=sum,na.rm=TRUE)
+  }
+  rain_mon_mean1=matrix(rain_mon_mean,11*4,1)
+  
+}
+
+rainfall_mon_stat=matrix(NA,nrow=11*4,ncol=1)
+watsed=c("A1","A2","B1","B21","C1","C22")
+rainfall_source=c("Daymet_RUN","PRISM_RUN","Maurer_RUN")
+for ( i in 1:length(watsed)){
+  for ( j in 1:length(rainfall_source)) {
+    
+    setwd(paste("E:\\USU_Research_work\\Other_Work\\RAINFALL_COMPARISON\\",watsed[i],"_watershed\\",rainfall_source[j],sep=""))
+    rainfile=list.files(path =paste("E:\\USU_Research_work\\Other_Work\\RAINFALL_COMPARISON\\",watsed[i],"_watershed\\",rainfall_source[j],sep=""),pattern ="rain.dat")
+    mr=sapply(rainfile,rainfall_stat_mon)
+    rainfall_mon_stat=cbind(rainfall_mon_stat,mr)
+    
+  }
+  print (i)
+}
+
+rainfall_mon_stat=rainfall_mon_stat[,-1]
+
+
+daymet_stat_prcp_mon=rainfall_mon_stat[,seq(1,18,3)]
+prism_stat_prcp_mon=rainfall_mon_stat[,seq(2,18,3)]
+Maurer_stat_prcp_mon=rainfall_mon_stat[,seq(3,18,3)]
+diff_D_M_mon=(1-daymet_stat_prcp_mon/Maurer_stat_prcp_mon)*100
+diff_P_M_mon=(1-prism_stat_prcp_mon/Maurer_stat_prcp_mon)*100
+
+
+diff_D_M_mon1=matrix(diff_D_M_mon,11*4*6,1)
+diff_P_M_mon1=matrix(diff_P_M_mon,11*4*6,1)
+diff_val=rbind(diff_D_M_mon1,diff_P_M_mon1)
+
+diff_src=c("Daymet","PRISM")
+dif_src=matrix((rep(diff_src,each=11*4*6)))
+
+wats=c("A1","A2","B1","B21","C1","C21")
+wats1=matrix((rep(watsed,each=11*4*1)))
+wats2=matrix((rep(wats1,2)))
+
+##for temperature and precipitation
+season1=matrix(rep(c('s1', 's2', 's3', 's4'),each=11))
+season2=matrix((rep(season1,12)))
+##for streamflow
+
+
+diff_val[is.na(diff_val)]=0
+diff_val[is.infinite(diff_val)]=0
+diff_val[diff_val<(-100)]=-200
+
+
+
+
+x <- data.frame(
+  values = diff_val,
+  scenario=  dif_src,
+  time = season2,
+  place = wats2
+)
+
+# compare different sample populations across various temperatures
+ggplot(x, aes(x = time, y = values, fill = scenario)) +
+  geom_boxplot(outlier.shape = NA) +geom_hline(yintercept = 0.0,colour="black",size=1)+ #stat_summary(aes(group=scenario), fun.y=mean, geom="line")+
+  facet_wrap(~ place,scales = "free")+theme_bw()+
+  #theme(legend.position="none")+
+  scale_fill_manual(name = "Emission Scenario", values = c("slateblue", "red"))+
+  theme(strip.text.x = element_text(size=14, face="bold"),
+        axis.text.x = element_text(colour="grey20",size=12,angle=90,hjust=.5,vjust=.5,face="plain"),
+        axis.text.y = element_text(colour="grey20",size=12,angle=0,hjust=1,vjust=0,face="plain"),  
+        axis.title.x = element_text(colour="grey20",size=16,angle=0,hjust=.5,vjust=0,face="bold"),
+        axis.title.y = element_text(colour="grey20",size=16,angle=90,hjust=.5,vjust=.5,face="bold"))
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 ###plotting the differences of rainfall (taking DAYMET AS REFERENCE)
