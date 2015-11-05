@@ -226,7 +226,7 @@ for ( i in 1:length(watsed)){
    
     setwd(paste("F:\\USU_Research_work_update_March_30_2014\\RAINFALL_COMPARISON\\",watsed[i],"_watershed\\",stream_source[j],sep=""))
     time=seq(as.Date("2000/1/1"), as.Date("2010/12/31"), "day")
-    time1=seq(as.Date("2001/1/1"), as.Date("2010/12/31"), "day")
+    time1=seq(as.Date("2000/1/1"), as.Date("2010/12/31"), "day")
     date_match=match(time1,time) # get overlap time interval
 
     sf=scan('streamflow_calibration.dat', what="")
@@ -293,8 +293,6 @@ for ( i in 1:6){
   txt1=c(paste("Daymet=",as.character(as.expression(eq$t1)),sep="")) 
   txt2=c(paste("PRISM=",as.character(as.expression(eq$t2)),sep="")) 
   txt3=c(paste("Maurer=",as.character(as.expression(eq$t3)),sep="")) 
-  
-  
   eq1=rbind(eq1,txt1)
   eq2=rbind(eq2,txt2)
   eq3=rbind(eq3,txt3)
@@ -318,7 +316,7 @@ ggplot(data, aes(time,values)) +
 geom_line(data = data, aes(time,values,group=scenario,color=scenario))+geom_point()+
 geom_text(data=labeldata1, aes(x=x, y=y1, label=eq,family="Times", fontface="bold"), parse=FALSE)+ 
 geom_text(data=labeldata2, aes(x=x, y=y2, label=eq,family="Times", fontface="bold"), parse=FALSE)+  
-  
+geom_text(data=labeldata3, aes(x=x, y=y3, label=eq,family="Times", fontface="bold"), parse=FALSE)+  
 facet_wrap(~place,scales = "free") +
   
   
