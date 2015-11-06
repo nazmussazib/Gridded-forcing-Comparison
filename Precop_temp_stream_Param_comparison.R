@@ -409,6 +409,7 @@ scale_x_discrete(breaks=c("Ann", "s1", "s2", "s3", "s4"), labels=c("Ann", 'Winte
   
 ####streamflwo monyhly  comparioson for different watersheds ###############
 
+banum=c(29,113,25,135,131,43)
 watsed=c("A1","A2","B1","B21","C1","C22")
 stream_source=c("Daymet_RUN","PRISM_RUN","Maurer_RUN")
 SNVAR_ALL=matrix(NA,nrow=12,ncol=1)
@@ -505,9 +506,9 @@ labeldata3=data.frame(cbind(eq3,x,y3))
 
 ggplot(data, aes(time,values)) + 
 geom_line(data = data, aes(time,values,group=scenario,color=scenario))+geom_point()+
-geom_text(data=labeldata1, aes(x=x, y=y1, label=eq,family="Times", fontface="bold"), parse=FALSE)+ 
-geom_text(data=labeldata2, aes(x=x, y=y2, label=eq,family="Times", fontface="bold"), parse=FALSE)+  
-geom_text(data=labeldata3, aes(x=x, y=y3, label=eq,family="Times", fontface="bold"), parse=FALSE)+  
+#geom_text(data=labeldata1, aes(x=x, y=y1, label=eq,family="Times", fontface="bold"), parse=FALSE)+ 
+#geom_text(data=labeldata2, aes(x=x, y=y2, label=eq,family="Times", fontface="bold"), parse=FALSE)+  
+#geom_text(data=labeldata3, aes(x=x, y=y3, label=eq,family="Times", fontface="bold"), parse=FALSE)+  
 facet_wrap(~place,scales = "free") +
   
   
