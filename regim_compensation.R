@@ -268,7 +268,7 @@ for ( j in 1:length(stream_source)){
         
     targetdir <- paste("F:\\USU_Research_work_update_March_30_2014\\RAINFALL_COMPARISON\\",watsed[i],"_watershed\\",stream_source[j],sep="")
     
-    origindir <- paste("F:\\USU_Research_work_update_March_30_2014\\RAINFALL_COMPARISON\\TOPINP\\",watsed[i],"Watershed\\",sr[k],sep="")
+    origindir <- paste("F:\\USU_Research_work_update_March_30_2014\\RAINFALL_COMPARISON\\TOPINP1\\",watsed[i],"Watershed\\",sr[k],sep="")
     file.copy(paste (origindir, "topinp.dat", sep = "/"), paste(targetdir, "topinp.dat" , sep = "/"), overwrite=TRUE)
     origindir1 <-"E:\\exePrograms"
     file.copy(paste (origindir1, "topnet_modified.exe", sep = "/"), paste(targetdir, "topnet_modified.exe" , sep = "/"), overwrite=TRUE,recursive=FALSE,copy.mode = TRUE)
@@ -299,7 +299,7 @@ for ( j in 1:length(stream_source)){
     SN2=regime_function(simflow)
     SN=rbind(SN1,SN2)
     SNVAR_ALL=rbind(SNVAR_ALL,SN)
-    SN1=matrix(as.numeric(SN1[1,1:57]),nrow=1,ncol=57)
+    SN1=matrix(as.numeric(SN1[1,1:57]),nrow=1,ncol=58)
     SN2=matrix(as.numeric(SN2[1,1:57]),nrow=1,ncol=57)
     var_order=c(4,8,15,16,23,24,25,29,35,37,40,43,46,49,52,55)
     #obs_seq=seq(1)
@@ -324,7 +324,9 @@ for ( j in 1:length(stream_source)){
 }
 
 
-#write.csv(stnvar,file="A1_climate_change_regime.xls")
+porder=c(2,1,11,10,3,12,8,5,6,7,14,15,9,13,4,16)
+DSX=CE_all[porder,2:10]
+write.table(CE_all[porder,2:10],file="compensation_regime.txt",col.names=FALSE,row.names=FALSE)
 
 rv_proj1=matrix(as.numeric(SNVAR_ALL[2:37,1:57]),nrow=36,ncol=57)
 var_order=c(4,8,15,16,23,24,25,29,35,37,40,43,46,49,52,55)
