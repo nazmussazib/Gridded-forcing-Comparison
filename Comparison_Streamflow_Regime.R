@@ -256,7 +256,7 @@ for ( i in 1:length(watsed)){
    # i=1
     #j=1
     setwd(paste("F:\\USU_Research_work_update_March_30_2014\\RAINFALL_COMPARISON\\",watsed[i],"_watershed\\",stream_source[j],sep=""))
-    
+    system(paste("topnet_modified"))
     
     
     time=seq(as.Date("2000/1/1"), as.Date("2010/12/31"), "day")
@@ -345,6 +345,9 @@ col_name=c("BFI","Slp_BFI","Pval_BFI",
 col_names=matrix(col_name)
 var_order=c(4,8,15,16,23,24,25,29,35,37,40,43,46,49,52,55)
 names=col_names[var_order]
+res_tabl=cbind(names,CE)
+setwd('E:\\USU_Research_work\\PAPERS\\Paper_from_Rainfall_Comparison\\Results')
+write.table('streamregime_NSE.txt',res_tabl)
 
 
 ######serial based on performance:
